@@ -1,0 +1,196 @@
+class User:
+    def __init__(self, name, address, phone):
+        self.name = name
+        self.address = address
+        self.phone = phone
+        self.stars = 0
+
+class UserManager:
+    def __init__(self):
+        self.users = []
+
+    def add_user(self, name, address, phone):
+        user = User(name, address, phone)
+        self.users.append(user)
+
+    def get_user(self, name):
+        for user in self.users:
+            if user.name == name:
+                return user
+        return None
+
+    def remove_user(self, name):
+        user = self.get_user(name)
+        if user is not None:
+            self.users.remove(user)
+
+    def deliver_paper(self, user_name, weight):
+        user = self.get_user(user_name)
+        if user is not None and weight > 25:
+            user.stars += weight
+            return True
+        return False
+
+class RegistrationScreen(Screen):
+    def __init__(self, user_manager, **kwargs):
+        super(RegistrationScreen, self).__init__(**kwargs)
+        self.name = 'registration'
+        self.user_manager = user_manager
+
+        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        layout.add_widget(Label(text="Nombre de usuario:"))
+        self.username_input = TextInput(multiline=False)
+        layout.add_widget(self.username_input)
+
+        layout.add_widget(Label(text="Dirección:"))
+        self.address_input = TextInput(multiline=False)
+        layout.add_widget(self.address_input)
+
+        layout.add_widget(Label(text="Teléfono:"))
+        self.phone_input = TextInput(multiline=False)
+        layout.add_widget(self.phone_input)
+
+        register_button = Button(text="Registrarse")
+        register_button.bind(on_press=self.register_user)
+        layout.add_widget(register_button)
+
+        self.add_widget(layout)
+
+    def register_user(self, instance):
+        name = self.username_input.text
+        address = self.address_input.text
+        phone = self.phone_input.text
+        self.user_manager.add_user(name, address, phone)
+        self.parent.current = 'delivery'
+
+class DeliveryScreen(Screen):
+    def __init__(self, user_manager, **kwargs):
+        super(DeliveryScreen, self).__init__(**kwargs)
+        self.name = 'delivery'
+        self.user_manager = user_manager
+
+        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        layout.add_widget(Label(text="Cantidad de kilos de papel a reportar:"))
+        self.weight_input = TextInput(multiline=False)
+        layout.add_widget(self.weight_input)
+
+        delivery_button = Button(text="Solicitar recolección")
+        delivery_button.bind(on_press=self.deliver_paper)
+        layout.add_widget(delivery_button)
+
+        self.add_widget(layout)
+
+    def deliver_paper(self, instance):
+        user_name = self.parent.get_screen('registration').username_input.text
+        weight = int(self.weight_input.text)
+        success = self.user_manager.deliver_paper(user_name, weight)
+        if success:
+            self.parent.current = 'history'
+
+class HistoryScreen(Screen):
+    def __init__(self, user_manager)
+    layout.add_widget(Label(text="Cantidad de kilos de papel:"))
+    self.weight_input = TextInput(multiline=False, input_type="number")
+    layout.add_widget(self.weight_input)
+
+    location_label = Label(text="Ubicación:")
+    layout.add_widget(location_label)
+    self.location_input = TextInput(multiline=False)
+    layout.add_widget(self.location_input)
+
+    gps_button = Button(text="Usar GPS")
+    gps_button.bind(on_press=self.use_gps)
+    layout.add_widget(gps_button)
+
+    submit_button = Button(text="Solicitar recolección")
+    submit_button.bind(on_press=self.submit_request)
+    layout.add_widget(submit_button)
+
+    self.add_widget(layout)
+
+def use_gps(self, instance):
+    # Funcionalidad para obtener la ubicación GPS del dispositivo 
+pass
+
+def submit_request(self, instance):
+    # Lógica para enviar la solicitud de recolección a la base de datos
+  pass
+
+class MainScreen(Screen):
+def init(self, **kwargs):
+super(MainScreen, self).init(**kwargs)
+self.name = 'main'
+
+    layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+    # RecycleView para mostrar el historial de entregas del usuario.
+    # Botón para editar el perfil del usuario y otro para cerrar sesión.
+
+    self.add_widget(layout)
+
+class PaperRecyclingApp(App):
+def build(self):
+screen_manager = ScreenManager()
+screen_manager.add_widget(LoginScreen())
+screen_manager.add_widget(MainScreen())
+
+    return screen_manager
+
+if name == "main":
+PaperRecyclingApp().run()
+
+import sqlite3
+
+class User:
+    def __init__(self, username):
+        self.username = username
+        self.stars = 0
+        self.db = sqlite3.connect('users.db')
+        self.cursor = self.db.cursor()
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS users (username TEXT, stars INTEGER)''')
+        self.db.commit()
+        self.load_data()
+
+    def load_data(self):
+        self.cursor.execute('''SELECT stars FROM users WHERE username=?''', (self.username,))
+        data = self.cursor.fetchone()
+        if data:
+            self.stars = data[0]
+
+    def add_stars(self, amount):
+        self.stars += amount
+        self.cursor.execute('''UPDATE users SET stars=? WHERE username=?''', (self.stars, self.username))
+        self.db.commit()
+
+    def get_stars(self):
+        return self.stars
+
+class RedeemScreen(Screen):
+    def __init__(self, **kwargs):
+        super(RedeemScreen, self).__init__(**kwargs)
+        self.name = 'redeem'
+
+        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        stars_label = Label(text="Cantidad de estrellas: " + str(User.current_user.get_stars()))
+        layout.add_widget(stars_label)
+
+        redeem_button = Button(text="Canjear premio")
+        redeem_button.bind(on_press=self.redeem_prize)
+        layout.add_widget(redeem_button)
+
+        self.add_widget(layout)
+
+    def redeem_prize(self, instance):
+        pass
+
+class PaperRecyclingApp(App):
+    def build(self):
+        screen_manager = ScreenManager()
+        screen_manager.add_widget(LoginScreen())
+        screen_manager.add_widget(MainScreen())
+        screen_manager.add_widget(RedeemScreen())
+
+        return screen_manager
