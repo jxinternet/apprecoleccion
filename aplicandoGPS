@@ -1,0 +1,47 @@
+import requests
+from kivy.app import App
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.gridlayout import GridLayout
+
+class MyGrid(GridLayout):
+    def __init__(self, **kwargs):
+        super(MyGrid, self).__init__(**kwargs)
+        self.cols = 1
+
+        self.btn = Button(text="Obtener ubicación", font_size=40)
+        self.btn.bind(on_press=self.on_button_press)
+        self.add_widget(self.btn)
+
+        self.lbl = Label(text="", font_size=40)
+        self.add_widget(self.lbl)
+
+    def on_button_press(self, instance):
+        location = self.obtener_ubicacion()
+        if location:
+            self.lbl.text = f"Ubicación: {location}"
+        else:
+            self.lbl.text = "No se pudo obtener la ubicación"
+
+    def obtener_ubicacion(self):
+        try:
+            # Hacer una solicitud a la API de geolocalización basada en IP
+            response = requests.get("https://ipapi.co/json/")
+            data = response.json()
+
+            # Extraer la ubicación de la respuesta JSON
+            if "city" in data and "country_name" in data:
+                city = data["city"]
+                country = data["country_name"]
+                return f"{city}, {country}"
+            else:
+                return None
+        except Exception:
+            return None
+
+class MyApp(App):
+    def build(self):
+        return MyGrid()
+
+if __name__ == "__main__":
+    MyApp().run()
